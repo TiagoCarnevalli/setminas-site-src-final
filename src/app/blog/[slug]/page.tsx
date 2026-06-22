@@ -5,8 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
-import { ref, onValue } from "firebase/database";
-import { database } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import Spinner from "@/components/ui/spinner";
 
 interface BlogPost {
@@ -29,14 +29,27 @@ export default function BlogPostPage() {
 	const [loading, setLoading] = React.useState<boolean>(true);
 
 	React.useEffect(() => {
-		const loteamentoRef = ref(database, `noticias/${postId}`);
-
-		onValue(loteamentoRef, (snapshot) => {
-			const data = snapshot.val();
-			setPosts(data);
-			setLoading(false);
-		});
+		fetchPost();
 	}, [postId]);
+
+	async function fetchPost() {
+		setLoading(true);
+		try {
+			const docRef = doc(db, "noticias", `${postId}`);
+
+			const docSnap = await getDoc(docRef);
+
+			if (docSnap.exists()) {
+				setPosts(docSnap.data() as BlogPost);
+			} else {
+				return;
+			}
+		} catch (err) {
+			console.error(err);
+		} finally {
+			setLoading(false);
+		}
+	}
 
 	if (!posts) {
 		return loading ? (
@@ -53,7 +66,7 @@ export default function BlogPostPage() {
 					O notícia que você está procurando não existe ou foi removida.
 				</p>
 				<Link
-					href="/notícias"
+					href="/blog"
 					className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors"
 				>
 					Ver todas as notícias
