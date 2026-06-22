@@ -129,6 +129,14 @@ export default function Footer() {
 									Empreendimentos
 								</Link>
 							</li>
+							<li>
+								<Link
+									href="/blog"
+									className="hover:text-blue-200 transition-colors"
+								>
+									Blog
+								</Link>
+							</li>
 						</ul>
 					</div>
 
